@@ -1,0 +1,241 @@
+<html><head><base href="https://cdn.jsdelivr.net/" />
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #660000;
+    font-family: 'Creepster', cursive;
+    overflow: hidden;
+}
+
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo2NjVFNDg3NjhBOEIxMUU5QjA5Q0ZEMzE2MzU1NDJBNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2NjVFNDg3NzhBOEIxMUU5QjA5Q0ZEMzE2MzU1NDJBNyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjY2NUU0ODc0OEE4QjExRTlCMDlDRkQzMTYzNTU0MkE3IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjY2NUU0ODc1OEE4QjExRTlCMDlDRkQzMTYzNTU0MkE3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+4jR+gwAAAA9JREFUeNpi+P//PwMDEwABBgA0/AM8Ir1s8QAAAABJRU5ErkJggg==');
+}
+
+.corridor {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(40,40,40,1) 0%, rgba(0,0,0,1) 100%);
+    transition: all 0.3s;
+}
+
+.player {
+    width: 20px;
+    height: 20px;
+    background: red;
+    position: absolute;
+    border-radius: 50%;
+    transition: all 0.1s;
+}
+
+.enemy {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    filter: grayscale(100%) brightness(0.3);
+    transition: all 0.2s;
+}
+
+.blood {
+    position: absolute;
+    background: #8b0000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#health {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: red;
+    text-shadow: 0 0 10px red;
+}
+
+#jumpscare {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: none;
+    z-index: 1000;
+}
+
+#jumpscareImg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="game">
+    <div class="corridor"></div>
+    <div class="player"></div>
+    <div id="health">Health: 100</div>
+</div>
+
+<div id="jumpscare">
+    <img id="jumpscareImg" src="/a/f4fefe27-c697-481d-840f-a340fd219d46" alt="Frightening ghostly face">
+</div>
+
+<audio id="ambientSound" loop>
+    <source src="https://soundbible.com/mp3/Horror_Ambiance-SoundBible.com-795560399.mp3" type="audio/mp3">
+</audio>
+
+<audio id="screamSound">
+    <source src="https://soundbible.com/mp3/Monster_Gigante-Doberman-1334685792.mp3" type="audio/mp3">
+</audio>
+
+<script>
+const game = document.getElementById('game');
+const player = document.querySelector('.player');
+const corridor = document.querySelector('.corridor');
+const jumpscareDiv = document.getElementById('jumpscare');
+const jumpscareImg = document.getElementById('jumpscareImg');
+const ambientSound = document.getElementById('ambientSound');
+const screamSound = document.getElementById('screamSound');
+const healthDisplay = document.getElementById('health');
+
+let health = 100;
+let enemies = [];
+let bloodStains = [];
+let gameOver = false;
+
+// Player position
+let playerX = window.innerWidth / 2;
+let playerY = window.innerHeight / 2;
+
+function updatePlayer(e) {
+    if(gameOver) return;
+    
+    playerX = e.clientX;
+    playerY = e.clientY;
+    
+    player.style.left = (playerX - 10) + 'px';
+    player.style.top = (playerY - 10) + 'px';
+}
+
+function createEnemy() {
+    if(gameOver) return;
+    
+    const enemy = document.createElement('div');
+    enemy.className = 'enemy';
+    
+    // Randomly choose scary image
+    const images = ['/a/15b7e6e9-5f54-4b41-bf0e-0205ff7d7a07', '/a/96cdb60c-b9f8-4e74-9db2-9e0916efd6b3'];
+    enemy.style.backgroundImage = `url(${images[Math.floor(Math.random() * images.length)]})`;
+    
+    // Random starting position
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+    
+    switch(side) {
+        case 0: // top
+            x = Math.random() * window.innerWidth;
+            y = -50;
+            break;
+        case 1: // right
+            x = window.innerWidth + 50;
+            y = Math.random() * window.innerHeight;
+            break;
+        case 2: // bottom
+            x = Math.random() * window.innerWidth;
+            y = window.innerHeight + 50;
+            break;
+        case 3: // left
+            x = -50;
+            y = Math.random() * window.innerHeight;
+            break;
+    }
+    
+    enemy.style.left = x + 'px';
+    enemy.style.top = y + 'px';
+    
+    game.appendChild(enemy);
+    enemies.push({
+        element: enemy,
+        x: x,
+        y: y,
+        speed: 2 + Math.random() * 2
+    });
+}
+
+function createBloodStain(x, y) {
+    const blood = document.createElement('div');
+    blood.className = 'blood';
+    blood.style.left = x + 'px';
+    blood.style.top = y + 'px';
+    blood.style.width = (20 + Math.random() * 30) + 'px';
+    blood.style.height = (20 + Math.random() * 30) + 'px';
+    blood.style.borderRadius = '50%';
+    game.appendChild(blood);
+    
+    setTimeout(() => {
+        blood.style.opacity = '0.7';
+    }, 50);
+    
+    bloodStains.push(blood);
+}
+
+function updateEnemies() {
+    if(gameOver) return;
+    
+    enemies.forEach((enemy, index) => {
+        const dx = playerX - enemy.x;
+        const dy = playerY - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if(distance < 30) {
+            health -= 5;
+            healthDisplay.textContent = `Health: ${health}`;
+            createBloodStain(playerX, playerY);
+            
+            if(health <= 0) {
+                gameOver = true;
+                triggerJumpscare();
+            }
+        }
+        
+        enemy.x += (dx / distance) * enemy.speed;
+        enemy.y += (dy / distance) * enemy.speed;
+        
+        enemy.element.style.left = enemy.x + 'px';
+        enemy.element.style.top = enemy.y + 'px';
+    });
+}
+
+function triggerJumpscare() {
+    jumpscareDiv.style.display = 'block';
+    screamSound.play();
+    setTimeout(() => {
+        location.reload();
+    }, 3000);
+}
+
+// Game loop
+setInterval(updateEnemies, 16);
+setInterval(createEnemy, 2000);
+
+// Event listeners
+game.addEventListener('mousemove', updatePlayer);
+window.addEventListener('click', () => {
+    ambientSound.play();
+});
+
+// Initial setup
+player.style.left = playerX + 'px';
+player.style.top = playerY + 'px';
+</script>
+
+</body></html>
